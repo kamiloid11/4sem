@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  nats-server:
+    image: nats:latest
+    container_name: nats-broker
+    ports:
+      - "4222:4222"
+      - "8222:8222" # Порт для мониторинга (HTTP), можно открыть в браузере
+    networks:
+      - weather-network
+
+  weather-publisher:
+    build: .
+    container_name: weather-app
+    depends_on:
+      - nats-server
+    environment:
+      - NATS_URL=nats://nats-server:4222
+    networks:
+      - weather-network
+
+networks:
+  weather-network:
+    driver: bridge
